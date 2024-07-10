@@ -26,14 +26,25 @@ function calcularTotalApresenteacao(apre) {
   return total;
 }
 
+function calcularCredito(apre) {
+  let creditos = 0;
+  creditos += Math.max(apre.audiencia - 30, 0);
+  if (getPeca(apre).tipo === "comedia") 
+     creditos += Math.floor(apre.audiencia / 5);
+  return creditos;
+}
+
+function formatarMoeda(valor) {
+  return new Intl.NumberFormat("pt-BR",
+    { style: "currency", currency: "BRL",
+      minimumFractionDigits: 2 }).format(valor);
+}
 
 function gerarFaturaStr (fatura) {
     let totalFatura = 0;
     let creditos = 0;
     let faturaStr = `Fatura ${fatura.cliente}\n`;
-    const formato = new Intl.NumberFormat("pt-BR",
-                          { style: "currency", currency: "BRL",
-                            minimumFractionDigits: 2 }).format;
+    const formato = formatarMoeda;
   
     for (let apre of fatura.apresentacoes) {
 
@@ -41,12 +52,8 @@ function gerarFaturaStr (fatura) {
 
       // calcula o total da apresentação
       total = calcularTotalApresenteacao(apre);
-
-  
-      // créditos para próximas contratações
-      creditos += Math.max(apre.audiencia - 30, 0);
-      if (getPeca(apre).tipo === "comedia") 
-         creditos += Math.floor(apre.audiencia / 5);
+      // acumula os creditos
+      creditos += calcularCredito(apre);
   
       // mais uma linha da fatura
       faturaStr += `  ${getPeca(apre).nome}: ${formato(total/100)} (${apre.audiencia} assentos)\n`;
